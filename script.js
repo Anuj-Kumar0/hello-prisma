@@ -3,45 +3,14 @@ import { PrismaClient } from "./generated/prisma/client.js";
 import { getUsersWithPosts } from "./generated/prisma/sql/index.js";
 
 async function main() {
-
-  // Create a user with a post
-  const user = await prisma.user.create({
-    data: {
-      name: "Alice",
-      email: "alice3@prisma.io",
-      posts: {
-        create: {
-          title: "Hello World",
-          content: "This is my first post!",
-          published: true,
-        },
-      },
-    },
-    include: {
-      posts: true,
-    },
-  });
-
-  console.log("Created user:", user);
-
-  // Fetch all users
-  const allUsers = await prisma.user.findMany({
-    include: {
-      posts: true,
-    },
-  });
-
-  console.log("All users:", JSON.stringify(allUsers, null, 2));
-
-  // Run TypedSQL query
-  const usersWithPostCounts = await prisma.$queryRawTyped(
-    getUsersWithPosts()
-  );
-
-  console.log("Users with post counts:", usersWithPostCounts);
+  // --- CLEAR ALL DATA FIRST ---
+  // Delete dependent tables first (Posts) then parents (Users)
+  await prisma.post.deleteMany({});
+  await prisma.user.deleteMany({});
+  console.log("All existing data cleared!");
 }
 
-main()
+  main()
   .catch((e) => {
     console.error(e);
   })
