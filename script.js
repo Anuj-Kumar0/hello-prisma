@@ -1,39 +1,50 @@
-import { prisma } from './lib/prisma.js';
-
+import { prisma } from "./lib/prisma.js";
+import { PrismaClient } from "./generated/prisma/client.js";
+import { getUsersWithPosts } from "./generated/prisma/sql/index.js";
 
 async function main() {
-    // Create a new user with a post
-    const user = await prisma.user.create({
-      data: {
-        name: "Alice",
-        email: "alice2@prisma.io",
-        posts: {
-          create: {
-            title: "Hello World",
-            content: "This is my first post!",
-            published: true,
-          },
+
+  // Create a user with a post
+  const user = await prisma.user.create({
+    data: {
+      name: "Alice",
+      email: "alice3@prisma.io",
+      posts: {
+        create: {
+          title: "Hello World",
+          content: "This is my first post!",
+          published: true,
         },
       },
-      include: {
-        posts: true,
-      },
-    });
-    console.log("Created user:", user);
-    // Fetch all users with their posts
-    const allUsers = await prisma.user.findMany({
-      include: {
-        posts: true,
-      },
-    });
-    console.log("All users:", JSON.stringify(allUsers, null, 2));
-  }
-  main()
-    .then(async () => {
-      await prisma.$disconnect();
-    })
-    .catch(async (e) => {
-      console.error(e);
-      await prisma.$disconnect();
-      process.exit(1);
-    });
+    },
+    include: {
+      posts: true,
+    },
+  });
+
+  console.log("Created user:", user);
+
+  // Fetch all users
+  const allUsers = await prisma.user.findMany({
+    include: {
+      posts: true,
+    },
+  });
+
+  console.log("All users:", JSON.stringify(allUsers, null, 2));
+
+  // Run TypedSQL query
+  const usersWithPostCounts = await prisma.$queryRawTyped(
+    getUsersWithPosts()
+  );
+
+  console.log("Users with post counts:", usersWithPostCounts);
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
