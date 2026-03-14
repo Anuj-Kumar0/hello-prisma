@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "data-migration:add-status-column": "node ./prisma/migrations/20260313121707_add_status_column/data-migration.js"
   },
   "keywords": [],
   "author": "",
